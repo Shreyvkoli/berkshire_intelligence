@@ -1,0 +1,63 @@
+
+import { createTool } from '@mastra/core/tools';
+import { z } from 'zod';
+import { Pool } from 'pg';
+import { pipeline, env } from '@xenova/transformers';
+
+// Configure cache for Xenova in serverless environments
+env.cacheDir = '/tmp/.cache';
+
+const pool = new Pool({
+    connectionString: process.env.POSTGRES_CONNECTION_STRING,
+    ssl: { rejectUnauthorized: false } // Neon often needs SSL, allow self-signed for now if needed or verify
+});
+
+// Singleton extractor
+let extractor: any = null;
+
+async function getEmbedding(text: string) {
+    if (!extractor) {
+        extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+    }
+    const output = await extractor(text, { pooling: 'mean', normalize: true });
+    return Array.from(output.data);
+}
+
+export const ragTool = createTool({
+    id: 'search-shareholder-letters',
+    description: 'Search Warren Buffett\'s shareholder letters for investment philosophy and insights.',
+    inputSchema: z.object({
+        query: z.string().describe('The question or topic to search for in the letters'),
+    }),
+    outputSchema: z.object({
+        results: z.string().describe("Relevant excerpts from the letters joined by newlines"),
+    }),
+    execute: async ({ query }) => {
+        // Generate embedding for query
+        const embedding = await getEmbedding(query);
+        const vectorStr = `[${embedding.join(',')}]`;
+
+        const client = await pool.connect();
+        try {
+            // Perform vector search
+            // The table uses 384 dimensions (all-MiniLM-L6-v2)
+
+            const result = await client.query(`
+                SELECT content, metadata, 1 - (embedding <=> $1::vector) as similarity
+                FROM embeddings
+                ORDER BY embedding <=> $1::vector
+                LIMIT 5
+            `, [vectorStr]);
+
+            const texts = result.rows.map(row =>
+                `[Year: ${row.metadata.year || 'Unknown'}] ${row.content}`
+            ).join('\n---\n');
+
+            return {
+                results: texts
+            };
+        } finally {
+            client.release();
+        }
+    },
+});
