@@ -1,10 +1,11 @@
 {
-    "builds": [
-        {
-            "src": "package.json",
-            "use": "@vercel/node"
+    "version": 2,
+    "buildCommand": "npm run build",
+    "installCommand": "npm install",
+    "framework": "nextjs",
+    "functions": {
+        "src/mastra/index.ts": {
+            "maxDuration": 60
         }
-    ],
-    "devCommand": "npm run dev",
-    "installCommand": "npm install"
+    }
 }
