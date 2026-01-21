@@ -14,7 +14,7 @@
   "description": "",
   "type": "module",
   "engines": {
-    "node": ">=22.13.0"
+    "node": ">=20.0.0"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.13",
