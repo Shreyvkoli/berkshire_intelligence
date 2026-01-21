@@ -1,11 +1,6 @@
 {
     "version": 2,
-    "buildCommand": "npm run build",
+    "buildCommand": "mastra build",
     "installCommand": "npm install",
-    "framework": "nextjs",
-    "functions": {
-        "src/mastra/index.ts": {
-            "maxDuration": 60
-        }
-    }
+    "framework": "nextjs"
 }
