@@ -1,13 +1,12 @@
 {
     "version": 2,
-    "buildCommand": "npx mastra build",
+    "buildCommand": "npx mastra build && next build",
     "installCommand": "npm install",
-    "framework": null,
-    "outputDirectory": ".mastra",
-    "rewrites": [
+    "framework": "nextjs",
+    "builds": [
         {
-            "source": "/",
-            "destination": "/public/index.html"
+            "src": "package.json",
+            "use": "@vercel/next"
         }
     ]
 }
