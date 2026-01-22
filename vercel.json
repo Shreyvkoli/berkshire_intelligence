@@ -1,6 +1,7 @@
 {
     "version": 2,
-    "buildCommand": "mastra build",
+    "buildCommand": "npx mastra build",
     "installCommand": "npm install",
-    "framework": "nextjs"
+    "framework": null,
+    "outputDirectory": ".mastra"
 }
