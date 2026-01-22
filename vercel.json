@@ -3,5 +3,11 @@
     "buildCommand": "npx mastra build",
     "installCommand": "npm install",
     "framework": null,
-    "outputDirectory": ".mastra"
+    "outputDirectory": ".mastra",
+    "rewrites": [
+        {
+            "source": "/",
+            "destination": "/public/index.html"
+        }
+    ]
 }
