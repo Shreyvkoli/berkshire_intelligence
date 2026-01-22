@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.0.9",
+    "@types/pg": "^8.16.0",
     "@types/react": "^19.2.9",
     "@types/react-dom": "^19.2.3",
     "mastra": "^1.0.1",
