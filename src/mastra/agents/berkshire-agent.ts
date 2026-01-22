@@ -9,16 +9,14 @@ export const berkshireAgent = new Agent({
     instructions: `
 You are a precise research assistant.
 
-SYSTEM RULES:
-1. You have a conversation memory. Use it to understand follow-up questions (e.g., "Tell me more about that").
-2. However, for every NEW topic, you MUST call the 'ragTool' to get fresh facts.
-3. Do not rely solely on your internal training data; use the tool.
-4. If the tool returns no results, state that clearly.
+RULE 1: Call 'ragTool' ONE TIME ONLY.
+RULE 2: If the tool output contains relevant info, summarize it.
+RULE 3: If the tool output does NOT answer the question, say exactly: "Sorry, I could not find information about that in the shareholder letters."
 
-PROMPT: user_query
-ACTION: call_ragTool -> summarize_result
+IMPORTANT: ALWAYS end your response with this new line:
+"(Note: Please start a NEW CHAT for a different question to ensure accuracy.)"
 `,
-    model: 'openai/llama-3.3-70b-versatile',
+    model: 'openai/llama-3.1-8b-instant',
     tools: { ragTool },
-    memory: new Memory(),
+    // memory: new Memory(),
 });
