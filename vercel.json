@@ -1,18 +1,28 @@
 {
     "version": 2,
-    "buildCommand": "npx mastra build && next build",
+    "buildCommand": "npx mastra build",
     "installCommand": "npm install",
-    "framework": "nextjs",
-    "builds": [
-        {
-            "src": "package.json",
-            "use": "@vercel/next"
-        }
-    ],
+    "framework": null,
+    "outputDirectory": ".mastra",
     "rewrites": [
+        {
+            "source": "/",
+            "destination": "/public/index.html"
+        },
         {
             "source": "/api/agents/:path*",
             "destination": "/api/agents/:path*"
+        }
+    ],
+    "headers": [
+        {
+            "source": "/public/(.*)",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=0, must-revalidate"
+                }
+            ]
         }
     ]
 }
