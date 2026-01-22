@@ -1,18 +1,29 @@
 "use client";
 
-import { useState } from 'react';
+import React, { useState, KeyboardEvent, ChangeEvent } from 'react';
+
+interface Message {
+    role: 'user' | 'ai';
+    content: string;
+}
+
+interface ApiResponse {
+    text?: string;
+    error?: string;
+}
 
 export default function Home() {
-    const [messages, setMessages] = useState<{ role: 'user' | 'ai', content: string }[]>([
+    const [messages, setMessages] = useState<Message[]>([
         { role: 'ai', content: "Hello! I am the Berkshire Hathaway Analyst. Ask me about Warren Buffett's letters (2019-2023)." }
     ]);
-    const [input, setInput] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [input, setInput] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
 
     const sendMessage = async () => {
         if (!input.trim()) return;
 
-        const newMessages = [...messages, { role: 'user' as const, content: input }];
+        const userMsg: Message = { role: 'user', content: input };
+        const newMessages = [...messages, userMsg];
         setMessages(newMessages);
         setInput('');
         setLoading(true);
@@ -21,10 +32,10 @@ export default function Home() {
             const response = await fetch('/api/agents/berkshire-analyst/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ messages: [{ role: 'user', content: input }] })
+                body: JSON.stringify({ messages: [{ role: 'user', content: userMsg.content }] })
             });
 
-            const data = await response.json();
+            const data: ApiResponse = await response.json();
 
             if (data && data.text) {
                 setMessages([...newMessages, { role: 'ai', content: data.text }]);
@@ -39,6 +50,16 @@ export default function Home() {
 
     const startNewChat = () => {
         setMessages([{ role: 'ai', content: "Memory cleared. Ready for a new topic!" }]);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    };
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setInput(e.target.value);
     };
 
     return (
@@ -73,8 +94,8 @@ export default function Home() {
             <div style={{ padding: '20px', borderTop: '1px solid #1f2937', display: 'flex', gap: '10px' }}>
                 <input
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                    onChange={handleChange}
+                    onKeyDown={handleKeyDown}
                     placeholder="Ask about Apple, Buybacks, or Geico..."
                     style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #374151', background: '#111827', color: 'white' }}
                 />
